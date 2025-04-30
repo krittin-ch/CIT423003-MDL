@@ -1,0 +1,85 @@
+\documentclass[11pt]{article}
+
+% === Page Layout ===
+\usepackage[a4paper, margin=1in]{geometry}
+
+% === Packages ===
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% === Header/Footer Setup ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Multimodal Deep Learning}
+\fancyhead[R]{Answer Sheet 1}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% === Title Information ===
+\begin{center}
+    {\Large \textbf{Multimodal Deep Learning}} \\ [0.3em]
+    \textbf{Answer Sheet 1} \\ [0.3em]
+    Date: April 29, 2025
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+\textbf{Exercise 1: Identifying Multi-Modal Pipelines}
+
+\begin{enumerate}[label=(\alph*)]
+    \item  {
+    \begin{enumerate}[label=\arabic*.]
+        \item \textbf{Translation pipeline} because it allows a single-modal input (a photograph of a menu written in Japanese) to be processed and return as an itemized list in English. 
+        The input is an image of a menu written in Japanese, while the output is a translated menu list in English.
+        \textbf{(Image Captioning / Image-to-Text Generation)}
+        \item \textbf{Fusion pipeline} because there are two modalities (an image and a text query) to generate simple classification (Yes/No).
+        The reason that this is not an alignment pipeline is that the model needs to be able to reason based on provided inputs.
+        \textbf{(Visual Question Answering (VQS) / Visual Reasoning)}
+    \end{enumerate}
+    }
+
+    \item \textbf{Alignment pipeline} because a text description input can be encoded, while images in databases can be pre-encoded, which both text input and image database can find the similarity in embedding vector.
+    This is also called cross-modal retrieval where data is retrieved from different modalities for desired output.
+    \textbf{(Cross-Modal Retrieval)}
+
+    \item \textbf{Fusion pipeline} because two input modalities -- a 10-second video clip and a patient’s vital signs table -- should be collated for determining a patient's condition.
+    \textbf{(Video and Tabular Fusion)}
+
+    \item \textbf{(Translation pipeline)} because a single modality input is needed to be encoded and decoded to generate an output image.
+    \textbf{(Text-to-Image Generation)}
+\end{enumerate}
+
+\noindent
+\textbf{Exercise 2: Intuition for Manifolds}
+
+\begin{enumerate}
+    \item Robot Arm 
+    \begin{enumerate}[label=\roman*.]
+        \item \textbf{Data Space} \((\mathbf{D})\): \(\mathbb{R}^D \in \{(x_1, y_1, x_2, y_2)\} = \mathbb{R}^4\) with \(x_1\) and \(y_1\) corresponding to robot shoulder and \(x_2\) and \(y_2\) corresponding to elbow bend. 
+        \item \textbf{Data Manifold} \((\mathbf{M} \subset \mathbb{R}^D)\): \(\mathbb{R}^M \in \{(x_1, y_1, x_2, y_2) \ | \ \text{robot arm constraints} \}\). 
+        \item  \textbf{Intrinsic Dimension (m)}: A two-link robot have at most 2 degree of freedoms (DoFs) -- \(\theta_1 \ \text{and} \ \theta_2\).
+        Hence, \(m = 2\).
+        \item \textbf{Coordinate Space} \((\mathbf{U} \subset \mathbb{R}^m)\): Hence, \(\mathbb{R}^U \subset \mathbb{R}^m \in \{(\theta_1, \theta_2)\} = \mathbb{R}^2\).        
+    \end{enumerate}
+
+    \item MNIST
+    \begin{enumerate}[label=\roman*.]
+        \item \textbf{Data Space} \((\mathbf{D})\): \(\mathbb{R}^D \in = \mathbb{R}^{1 \times 784}\) because MNIST is a dataset in grayscale and is also flattened. 
+        \item \textbf{Data Manifold} \((\mathbf{M} \subset \mathbb{R}^D)\): \(\mathbb{R}^M \in \{(x, y) \ | \ \text{readable pixels (space of valid digit shapes)} \}\). 
+        \item  \textbf{Intrinsic Dimension (m)}: By applying Principal Component Analysis (PCA), a flattened image dimension can be reduced. Hence, \(m << 784\) -- depending on data characteristic.
+        For simplicity, \(m = 1\) because there are only numbers from 0 to 9 in the MNIST dataset.
+        \item \textbf{Coordinate Space} \((\mathbf{U} \subset \mathbb{R}^m)\): Hence, \(\mathbb{R}^U \subset \mathbb{R}^m \in \{i \ | \ i \in 0 \text{ to } 10 \} = \mathbb{R}^1\).        
+    \end{enumerate}
+
+    \begin{enumerate}[label=(\alph*)]
+        \item Since the intrinsic dimension refers to highly featured vectors, and not all 784 pixels are considered high-feature pixels -- curves, angles, or borderlines between two colors can be considered high-feature, while the black background should not be much emphasized -- so the intrinsic dimension should be much smaller than 784.
+    \end{enumerate}
+\end{enumerate}
+
+\end{document}
