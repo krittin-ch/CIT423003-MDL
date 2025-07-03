@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+
+% === Page Layout ===
+\usepackage[a4paper, margin=1in]{geometry}
+
+% === Packages ===
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+% === Header/Footer Setup ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Multimodal Deep Learning}
+\fancyhead[R]{Answer Sheet 6}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% === Title Information ===
+\begin{center}
+    {\Large \textbf{Multimodal Deep Learning}} \\ [0.3em]
+    {\large \textbf{Answer Sheet 6}} \\ [0.3em]
+    \large Date: June 24, 2025
+\end{center}
+
+\vspace{1cm}
+
+\subsection*{Exercise 1: Information-Theory Basics}
+
+\begin{enumerate}[label=(\alph*)]
+    \item {
+        \textbf{Answer: } Cross-Entropy: \(H(p,q) = - \Sigma_{x \in X} p(x) \log q(x)\) is to be minimized, equivalent to minimizing KL Divergence: \(D_{KL}(p||q) = \Sigma_{x \in X} p(x) \log \frac{p(x)}{q(x)}\).
+    }
+    \item {
+        \textbf{Answer: } By maximizing log-likelihood, \(log q_\theta(w)\), will minimize the cross-entropy since \(H(p,q_\theta) = -\mathbb{E}_p[\log q_\theta(w)] \propto -\log q_\theta(w)\).
+    }
+    \item \textbf{Answer: } Proof of \(H(p,q_\theta) = H(p) + D_{KL}(p||q)\): {
+        \begin{align*}
+            H(p,q_\theta) &= -\mathbb{E}_p \log q(x) \\
+                          &= \mathbb{E}_p (\log p(x) - \log p(x) - \log q_\theta(x)) \\
+                          &= -\mathbb{E}_p \log p(x) + \mathbb{E}_p \frac{\log p(x)}{\log q_\theta(x)} \\
+                          &= H(p) + D_{KL}(p||q)
+        \end{align*}
+    }
+    \item 
+\end{enumerate}
+
+\end{document}

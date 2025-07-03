@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+
+% === Page Layout ===
+\usepackage[a4paper, margin=1in]{geometry}
+
+% === Packages ===
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+% === Header/Footer Setup ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Multimodal Deep Learning}
+\fancyhead[R]{Answer Sheet 7}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% === Title Information ===
+\begin{center}
+    {\Large \textbf{Multimodal Deep Learning}} \\ [0.3em]
+    {\large \textbf{Answer Sheet 7}} \\ [0.3em]
+    \large Date: July 1, 2025 \\
+\end{center}
+
+\vspace{1cm}
+
+\subsection*{Exercise 1: Selective Fine-Tuning}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \href{https://arxiv.org/abs/2411.05752}{\textbf{Fishmask}} 
+
+    \begin{enumerate}[label=(\roman*)]
+        \item Mapping\\ 
+        \textbf{Problem Statement:} 
+        
+        \begin{itemize}
+            \item A layer contains \(4.0 \times 10^6\) weights.
+            \item A "Fisher score approximation" assigns a scalar importance \(I_i\) to each weight \(w_i\).
+            \item We are allowed to update only 0.8\% of these weights.
+            \item This refers to the Fisher Information Matrix (FIM), which measures how sensitive the loss function is to parameter changes.
+            \begin{itemize}
+                \item High Fisher score \(I_i\): important weight.
+                \item Low Fisher score \(I_i\): less important.
+                \item One-shot Fisher approximation computes importance without retraining.
+            \end{itemize}
+        \end{itemize}
+        
+        \textbf{Answer:}
+        
+        \begin{itemize}
+            \item Total weights: 4 million parameters.
+            \item Budget: 0.8\% of total weights = 32,000 weights = \(k\).
+            \item A binary mask \(\mathbf{m} \in \{0, 1\}^n\) has 32,000 ones and the rest zeros. (\(m_i = 1\): update; \(m_i = 0\): freeze)
+            \item Mapping formula (using both \(\mathbf{I}\) and \(\mathbf{m}\)): \(\mathbf{M} = \mathbf{I}^T \mathbf{m}\)
+            \item Mapping formula (constructing \(\mathbf{m}\) from top-\(k\)): \(\mathbf{m} = \mathbf{I} > \min(\operatorname{Top}_k(\mathbf{I}))\)
+        \end{itemize}
+    \end{enumerate}
+\end{enumerate}
+
+
+\end{document}
