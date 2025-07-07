@@ -185,11 +185,65 @@
         \textbf{Answer:} A single block of (IA)\(^3\) contains \(\mathbf{l_v}\), \(\mathbf{l_k}\), \(\mathbf{l_{ffn}}\) as learnable vectors of length 768, 768 and 3072 (Total of 4608 parameters).
         Hence, with 40-block model, \(4608 \times 40 = 184320\) parameters.
 
-        \item Based on its mechanism, why is (IA)\(^3\) considered to have more limited expressibility than a standard adapter module?
+        \item Based on its mechanism, why is (IA)\(^3\) considered to have more \textbf{limited expressibility} than a standard adapter module?
         
         \textbf{Answer:} (IA)\(^3\) updates only the scaling of attention and MLP.
-        It does not produce linear projection or nonlinear transformation, like standard adapters. 
-        
+        It does not produce linear projection or nonlinear transformation, like standard adapters.         
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercise 3: Multi-Modal Fusion Strategies}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Representation Fusion} You are predicting house prices using two modalities: an image (A) and a text description (B). After passing through individual encoders, you have the feature vectors:
+    \[
+    \mathbf{x}_A = \begin{bmatrix}
+        2 \\ 8 \\ 1 \\ 3
+    \end{bmatrix} \in \mathbb{R}^4
+    \quad \text{and} \quad
+    \mathbf{x}_B = \begin{bmatrix}
+        4 \\ 1 \\ 5
+    \end{bmatrix} \in \mathbb{R}^3
+    \]
+
+    \begin{enumerate}
+        \item \textbf{Concatenation Fusion:} Compute the joint representation \(\mathbf{z}_\text{concat}\) and state its dimension.
+
+        \textbf{Answer:} \(\mathbf{z_\text{concat}} = \left[\mathbf{x}_A; \mathbf{x}_B\right] = \left[2, 8, 1, 3, 4, 1, 5\right]^T \in \mathbb{R}^7\)
+
+        \item \textbf{Additive Fusion:}
+        \begin{enumerate}[label=(\alph*)]
+            \item Can you directly apply additive fusion (\(\mathbf{z} = \mathbf{x}_A + \mathbf{x}_B\))? Why or why not?
+            
+            \textbf{Answer:} No because the \(\mathbf{x}_A\) and \(\mathbf{x}_B\) do not have the same dimension.
+
+            \item To enable additive fusion, you must project both vectors into a common dimension \(d_z = 2\) using matrices \(\mathbf{W}_A \in \mathbb{R}^{2 \times 4}\) and \(\mathbf{W}_B \in \mathbb{R}^{2 \times 3}\).
+            Write the complete formula for the fused representation \(\mathbf{z_\text{add}}\).
+
+            \textbf{Answer:} \(\mathbf{z_\text{add}} = \mathbf{W}_A \mathbf{x}_A + \mathbf{W}_B \mathbf{x}_B \in \mathbb{R}^2\)
+        \end{enumerate}
+
+        \item \textbf{Bilinear Fusion:}
+        \begin{enumerate}[label=(\alph*)]
+            \item Compute the joint representation matrix \(\mathbf{Z_\text{bilinear}}\) using the outer product (\(\mathbf{Z} = \mathbf{x}_A \mathbf{x}^T_B\)).
+            
+            \textbf{Answer:} 
+            \[
+                \mathbf{Z_\text{bilinear}} 
+                = \mathbf{x}_A \mathbf{x}^T_B 
+                = \begin{bmatrix} 2 \\ 8 \\ 1 \\ 3 \end{bmatrix} \cdot \begin{bmatrix} 4 & 1 & 5 \end{bmatrix} 
+                = \begin{bmatrix}
+                    8 & 2 & 10 \\ 
+                    32 & 8 & 40 \\
+                    4 & 1 & 5 \\ 
+                    12 & 3 & 15
+                \end{bmatrix}
+            \]
+
+            \item What is the shape of \(\mathbf{Z_\text{bilinear}}\)? How do its rows and columns relate to the input modalities?
+            
+            \textbf{Answer:} \(\mathbf{Z_\text{bilinear}} \in \mathbb{R}^{4 \times 3}\). \(\mathbf{Z_\text{bilinear}}\) refers to the score from the product of each element.
+        \end{enumerate}
     \end{enumerate}
 
 \end{enumerate}
