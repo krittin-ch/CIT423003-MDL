@@ -2,7 +2,7 @@ import numpy as np
 from sinusoidal_positional_encodings import PE_generator
 import math 
 
-def attn_bfs_generator(bfs_tree, d_model):
+def pos_bfs_generator(bfs_tree, d_model):
     n = bfs_tree.size
     m_pe = np.zeros((n, d_model))
 
@@ -20,7 +20,7 @@ def attn_bfs_generator(bfs_tree, d_model):
 
 bfs_tree = np.array([1, 2, 3, 4, 5, 6, 7])
 
-m_pe = attn_bfs_generator(bfs_tree, 4)
+m_pe = pos_bfs_generator(bfs_tree, 2)
 
 print("Binary Tree (BFS) with Sinusoidal Positinal Encodings: ")
 print(m_pe)

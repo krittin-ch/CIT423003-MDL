@@ -206,7 +206,7 @@
     \end{bmatrix} \in \mathbb{R}^3
     \]
 
-    \begin{enumerate}
+    \begin{enumerate}[label=\arabic*.]
         \item \textbf{Concatenation Fusion:} Compute the joint representation \(\mathbf{z}_\text{concat}\) and state its dimension.
 
         \textbf{Answer:} \(\mathbf{z_\text{concat}} = \left[\mathbf{x}_A; \mathbf{x}_B\right] = \left[2, 8, 1, 3, 4, 1, 5\right]^T \in \mathbb{R}^7\)
@@ -244,6 +244,13 @@
             
             \textbf{Answer:} \(\mathbf{Z_\text{bilinear}} \in \mathbb{R}^{4 \times 3}\). \(\mathbf{Z_\text{bilinear}}\) refers to the score from the product of each element.
         \end{enumerate}
+
+        \item Why is Bilinear Fusion not directly applicable for combining three or more modalities simultaneously?
+        What more general fusion method overcomes this?
+
+        \textbf{Answer:} Because combing more than three layers create computational burden (\(O(n^k) \; ; k\) is the number of modalities).
+        To solve this problem, using additive fusion can simplify the fusion process by linear projecting all modalities into a common dimension before applying summation.
+
     \end{enumerate}
 
 \end{enumerate}
