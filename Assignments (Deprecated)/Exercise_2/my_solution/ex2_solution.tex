@@ -1,0 +1,223 @@
+\documentclass[11pt]{article}
+
+% === Page Layout ===
+\usepackage[a4paper, margin=1in]{geometry}
+
+% === Packages ===
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{amsmath}
+
+% === Header/Footer Setup ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Multimodal Deep Learning}
+\fancyhead[R]{Answer Sheet 2}
+\fancyfoot[C]{\thepage}
+
+\begin{document}
+
+% === Title Information ===
+\begin{center}
+    {\Large \textbf{Multimodal Deep Learning}} \\ [0.3em]
+    {\large \textbf{Answer Sheet 2}} \\ [0.3em]
+    \large Date: May 6, 2025
+\end{center}
+
+\vspace{1cm}
+
+\subsection*{Exercise 1: Numerical Features: Normalization vs. Standardization}
+
+\noindent
+A one-dimensional sensor produces readings
+
+\[
+    \texttt{x} = [2.7, \, 3.1, \, 9.4, \, 6.5, \, 4.2, \, 3.8].
+\]
+
+\begin{enumerate}[start=3, label=(\alph*)]
+    \item {
+        When would you prefer Min–Max scaling over z-scaling, and vice-versa? 
+
+        \textbf{Answer:} \textbf{Min-Max scaling} is preferred when the true scale of information are sensitive to the quality of the output.
+        While \textbf{z-scaling} is preferred when the input is approximately Gaussian, and the distribution of features can enhance the quality of the output
+        }
+    \item {
+        \textbf{Binning / Discretization:} Why convert a continuous feature (e.g. ``age") into bins (``young", ``middle-aged", ``senior")? Give one benefit and one drawback.
+        
+        \textbf{Answer:} One good benefit is discretization can help group a continuous feature into a simpler format which also help reduce the memory consumption, 
+        while one drawback is its lack of feature awareness and ruin system quality, particularly when binning algorithm is too naive or trying to do without sufficient data understanding.
+        }
+\end{enumerate}
+
+\subsection*{Exercise 2: Categorical Features}
+
+\noindent
+You have a categorical attribute \texttt{Color} with values
+
+\begin{center}
+    [Red, Blue, Green, Blue].
+\end{center}
+
+\begin{enumerate}[label=(\alph*)]
+    \item {
+        Show the One-Hot encoded matrix. 
+
+        \textbf{Answer:}
+        \[
+            \texttt{X} = 
+            \begin{bmatrix}
+            0 & 0 & 1 \\
+            1 & 0 & 0 \\
+            0 & 1 & 0 \\
+            1 & 0 & 0 \\
+            \end{bmatrix}
+        \]
+        }
+    \item {
+        Show the Label-Encoding (integers assigned alphabetically from 0). 
+        
+        \textbf{Answer:}
+        \[
+            \text{Blue} \mapsto 0, \ \text{Green} \mapsto 1, \ \text{Red} \mapsto 2
+        \]
+        }
+    \item {
+        What can go wrong if you feed the labels from (b) directly into a linear or distance-based model? 
+
+        \textbf{Answer:} The model will not be able to achieve its best performance because the label-encoding method does not manifest the exact relationship between each color.
+        However, One-Hot encoding is a better option because it presents the vectors of color in vector space avoiding assumption of order or magnitude.
+        }
+
+\end{enumerate}
+
+\subsection*{Exercise 3: Text Features}
+
+\noindent
+Byte-pair encoding (BPE) corpus
+
+\begin{center}
+    [``low'', ``lower'', ``lowest'', ``newest'']
+\end{center}
+
+\noindent
+Perform 4 BPE merges. Show the merge pairs and the updated vocabulary after each step.
+
+\noindent
+\textbf{Answer:} Please see the answer provided by the lecturer.
+
+\subsection*{Exercise 4: Johnson–Lindenstrauss Lemma Bounds}
+
+\noindent
+For simplicity in this exercise, we use the bound C = 8.
+
+\begin{enumerate}[label=(\alph*)]
+    \item {
+        \(N\) = \(10^6\), \(\epsilon\) = 0.1: compute the minimum \(k\).
+        \[
+            k \geq \frac{C \log N}{\epsilon^2} = \frac{8 \log 10^6}{0.1^2} \approx 11052.
+        \]
+        Minimum \(k\) = 4800.
+        }
+    \item {
+        With \(k\) = 500 and \(N\) = \(10^6\), what is the best guaranteed distortion \(\epsilon\)?
+        \[
+            \epsilon \geq \sqrt{\frac{C \log N}{\epsilon^2}} = \sqrt{\frac{8 \log 10^6}{500}} \approx 0.47.
+        \]
+        The best guaranteed distortion \(\epsilon\) = 0.47 = 47\%.
+        }
+\end{enumerate}
+
+\subsection*{Exercise 5: Sparse vs. Dense Distance Functions}
+
+\begin{enumerate}[label=(\alph*)]
+    \item {
+        \textbf{Sparse binary vectors: } \\ 
+        
+        \textbf{Answer:} \textbf{Euclidean distance} cannot be utilized effectively with sparse data because the \texttt{0} and \texttt{1} values do not carry meaningful information for calculating distance, unlike in dense data, where features tend to have more varied and informative values.
+        }
+    \item {
+        \textbf{Unit-normalized dense vectors:} \\
+        
+        \textbf{Answer:} From the provided answer, ranking values of \(s \mapsto d(u,v) = \sqrt{2-2s}\) by both of them are equivalent after \(L2\)-norm.
+        This can refer that for certain tasks which require the order of values, we can effectively approximate the sequence of data using Euclidean distance -- lower computational cost (e.g., Approximate Nearest Neighbor (ANN) Search)
+        }
+    \item {
+        \textbf{Dense count vectors of different length: }
+        
+        \textbf{Answer:} Cosine similarity is invariant to the length of the document, unlike Euclidean distance.
+        }
+\end{enumerate}
+
+\subsection*{Exercise 6: PCA via SVD}
+
+\noindent
+Given the mean-centred matrix
+
+\[
+    \mathbf{X} = \begin{bmatrix}
+        -1 & 2 & 0 \\
+        -1 & -3 & 1 \\ 
+        2 & 1 & -1
+    \end{bmatrix}
+\]
+
+perform the singular-value decomposition \(\mathbf{X} = U \Sigma V^T\). (Feel free to use a linear-algebra library
+such as `numpy.linalg.svd'.)
+\begin{enumerate}[label=(\alph*)]
+    \item Give \(U, \ \Sigma, \text{ and}, \ V^T\)
+
+    \textbf{Answer:}
+    {\small\[
+    U = \begin{bmatrix}
+        -0.3518 & 0.7368 & 0.5774 \\ 
+        0.8140 & -0.0637 & 0.5774 \\
+        -0.4622 & -0.6731 & 0.5774
+    \end{bmatrix} \, , \ 
+    \Sigma = \begin{bmatrix}
+        4.07035 & 0 & 0 \\ 
+        0 & 2.3307 & 0 \\
+        0 & 0 & 0        
+    \end{bmatrix} \, , \
+    V = \begin{bmatrix}
+        -0.3406 & -0.8664 & 0.3651 \\
+        -0.8864 & 0.4254 & 0.1826 \\ 
+        0.3135 & 0.2615 & 0.9129
+    \end{bmatrix}
+    \]}
+
+    \item Using the first principal component, form the rank-1 reconstruction \(\mathbf{X}_1\), compute the reconstruction error \(||\mathbf{X} - \mathbf{X}_1||_F\) using the Frobeniusnorm.
+    
+    \textbf{Answer:} 
+    \begin{align*}
+        \mathbf{X}_1 &= \sigma_1 u_1 v^T_1 \\
+        &= 4.07035 \cdot \begin{bmatrix} -0.3518 \\ 0.8140 \\ -0.4622 \end{bmatrix} \cdot \begin{bmatrix} -0.3406 & -0.8864 & 0.3135 \end{bmatrix} \\ 
+        &= \begin{bmatrix}
+           0.4876 & -1.2706 & 0.4497 \\ 
+           -1.1291 & -2.9383 & 1.041 \\ 
+           0.6407 & 1.6670 & -0.5905 
+        \end{bmatrix}
+    \end{align*}
+
+    \begin{align*}
+        ||\mathbf{X} - \mathbf{X}_1||_F &= \sqrt{\Sigma_{i=1}^m \Sigma_{j=1}^n |x_{ij}|^2}
+    \end{align*}
+
+    \item For a general data set, how can we choose \(k\) so that the reconstruction retains at least \(\alpha\) fraction of the total variance?
+    
+    \textbf{Answer:}
+    \[
+        \frac{\sum_{i=1}^k \sigma_i^2}{\sum_{i=1}^r \sigma_i^2} \geq \alpha
+    \]  
+    where \( \sigma_i \) are the singular values of the data matrix \( \mathbf{X} \), and \( r \) is the rank of \( \mathbf{X} \). This ensures that the rank-\( k \) approximation captures at least \( \alpha \times 100\% \) of the total variance in the data.
+
+    \item Relate principal components to \textit{intrinsic dimension}.
+
+    \textbf{Answer:} The principal components of a dataset, obtained via PCA, represent directions of maximal variance.
+    The intrinsic dimension of the data corresponds to the smallest number of principal components required to capture most of the variance -- typically 90-99\%. 
+    This means the intrinsic dimension can be estimated by counting the number of significant singular values (or principal components), reflecting the true degrees of freedom in the data despite a possibly higher ambient dimension.
+\end{enumerate}
+
+\end{document}

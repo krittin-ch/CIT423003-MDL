@@ -1,0 +1,258 @@
+\documentclass[11pt]{article}
+
+% === Page Layout ===
+\usepackage[a4paper, margin=1in]{geometry}
+
+% === Packages ===
+\usepackage{graphicx}
+\usepackage{comment}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\usepackage{amssymb}
+
+% === Header/Footer Setup ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Multimodal Deep Learning}
+\fancyhead[R]{Answer Sheet 7}
+\fancyfoot[C]{\thepage}
+
+\pgfplotsset{compat=1.17}
+
+\begin{document}
+
+% === Title Information ===
+\begin{center}
+    {\Large \textbf{Multimodal Deep Learning}} \\ [0.3em]
+    {\large \textbf{Answer Sheet 7}} \\ [0.3em]
+    \large Date: July 1, 2025 \\
+\end{center}
+
+\vspace{1cm}
+
+\subsection*{Exercise 1: Selective Fine-Tuning}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \href{https://arxiv.org/abs/2411.05752}{\textbf{Fishmask}} 
+
+    \begin{enumerate}[label=(\roman*)]
+        \item Write the formula that maps the vector of scores \(\mathbf{I}\) to a binary mask \(m \in \{0, 1\}^n\) respecting the budget constraint.
+
+        \textbf{Problem Statement:} 
+        \begin{itemize}
+            \item A layer contains \(4.0 \times 10^6\) weights.
+            \item ``Fisher score approximation'' assigns a scalar importance \(I_i\) to each weight \(w_i\).
+            \item We are allowed to update only 0.8\% of these weights.
+            \item This refers to the Fisher Information Matrix (FIM), which measures how sensitive the loss function is to parameter changes.
+            \begin{itemize}
+                \item High Fisher score \(I_i\): important weight.
+                \item Low Fisher score \(I_i\): less important.
+                \item One-shot Fisher approximation computes importance without retraining.
+            \end{itemize}
+        \end{itemize}
+        
+        \textbf{Answer:}
+        \begin{itemize}
+            \item Total weights: 4 million parameters.
+            \item Budget: 0.8\% of total weights = 32,000 weights = \(k\).
+            \item A binary mask \(\mathbf{m} \in \{0, 1\}^n\) has 32,000 ones and the rest zeros. (\(m_i = 1\): update; \(m_i = 0\): freeze).
+            \item Mapping formula (using both \(\mathbf{I}\) and \(\mathbf{m}\)): \(\mathbf{M} = \mathbf{I}^T \mathbf{m}\).
+            \item Mapping formula (constructing \(\mathbf{m}\) from top-\(k\)): \(\mathbf{m} = \mathbf{I} > \min(\operatorname{Top}_k(\mathbf{I}))\).
+        \end{itemize}
+
+        \item To update the selected weights, the Adam optimizer requires memory for more than just the weights themselves.
+        For each trainable parameter, memory must be allocated for its \textbf{gradient}, its \textbf{1st moment}, and its \textbf{2nd moment}.
+        Assuming all values are stored in 32-bit float precision (4 bytes per number), what is the total memory overhead for the optimizer?
+
+        \textbf{Answer:} 
+        \begin{itemize}
+            \item Total memory for weights: 0.8\% of \(4.0 \times 10^6 \text{ weights} \times 3 \text{ stages} \times 4 \text{ bytes} = 375 \text{ MB}\). 
+        \end{itemize}
+    \end{enumerate}
+
+
+    \item \textbf{DiffPruning}
+    
+    \begin{enumerate}[label=(\roman*)]
+        \item Compute the GPU memory overhead (in MB) of storing the dense differentiable mask during training.
+        
+        \textbf{Problem Statement:}
+        \begin{itemize}
+            \item A model of 350 M-parameter.
+            \item Aiming to prune or zero out 99.5\% of parameters -- leaving only 0.5\% of the weights active.
+            This is one of many methods to compress a model which lessen memory used and improve generalization (reduce overfitting).
+            \item The dense differentiable mask is a tensor of the same size as the model's parameters, with values between 0 and 1.
+        \end{itemize}
+
+        \textbf{Answer:} Total memory for the \textit{dense} differentiable mask: \(350 \times 10^6 \times\) size of FP32 (4 bytes) \(\approx\) 1335.14 MB.
+
+        \item If you could store the final mask as a packed 1-bit tensor for inference, what would its size be (in kB)?
+        
+        \textbf{Answer: } Total memory for the final mask: \(350 \times 10^6 \times 1\) bit = 42,675.78 kB.
+    \end{enumerate}
+
+    \item \textbf{BitFit}
+    
+    \textit{Note:} BitFit is a lightweight fine-tuning method where only bias terms are updated during training. All other weights (e.g., attention layers, MLPs, etc.) are frozen.
+    
+    A GPT-style model has 40 transformer blocks with the following per-block sizes:
+    \begin{itemize}
+        \item Query bias: \(d_\text{model}\) = 768
+        \item Middle-MLP bias: \(d_\text{ff}\) = 3072
+    \end{itemize}
+
+    \begin{enumerate}[label=(\roman*)]
+        \item Calculate the percentage of the model's 250 M parameters that BitFit updates. 
+        
+        \textbf{Answer:} A single transformer block contains 768 + 3072 = 3840 parameters (bias weights). For 40 transformer blocks, there are \(40 \times 3840 = 153,600\) updated by BitFit, equivalent to 0.0614\% of a model with 250 M parameters.
+
+        \item State one reason why BitFit's advantage fades on very large models or on architectures like LLaMA.
+        
+        \textbf{Answer:} Bias terms make up a very small fraction of the total parameters, so updating only those (as BitFit does) has limited influence on the model's behavior.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercise 2: Adapter}
+
+\begin{enumerate}[label=(\alph*)]
+    \item You are adding adapter modules to a transformer with a hidden dimension of \(d_\text{model}\) = 768.
+    Each adapter is a bottleneck feed-forward network with a reduction factor, such that the inner dimension is \(r\) = 16. The adapter structure is:
+    \begin{center}
+        Linear(\(d_\text{model} \rightarrow r\)) \(\rightarrow\) GELU \(\rightarrow\) Linear(\(r \rightarrow d_\text{model}\))
+    \end{center}
+
+    \begin{center}
+        \scalebox{0.7}{
+        \begin{tikzpicture}
+            \begin{axis}[
+                domain=-5:5,
+                samples=200,
+                axis lines=middle,
+                xlabel=$x$,
+                ylabel={GELU$(x)$},
+                grid=both,
+                width=12cm,
+                height=8cm,
+                title={GELU Activation Function},
+            ]
+                \addplot[blue, thick] {0.5 * x * (1 + tanh( sqrt(2/pi) * (x + 0.044715 * x^3) ))};
+            \end{axis}
+        \end{tikzpicture}
+        }
+    \end{center}
+
+    \begin{enumerate}[label=(\roman*)]
+        \item Calculate the number of trainable parameters in a \textbf{single} adapter module.
+        Remember to include bias terms for both linear layers.
+
+        \textbf{Answer:}
+        
+        The number of weights:
+        \begin{align*}
+            \#w_i &= (768 \times 16) + (16 \times 768) \\
+            \therefore \ \#w_i &= 24576
+        \end{align*}
+
+        The number of biases:
+        \begin{align*}
+            \#b_i &= 16 + 768 \\
+            \therefore \ \#b_i &= 784
+        \end{align*}
+
+        Total parameters = 25360 parameters
+
+        \item Explain why this method, despite its parameter efficiency, significantly increases inference latency compared to a method like (IA)\(^3\).
+        
+        \textbf{Answer:} First, GeLU preserves small input signals, unlike ReLU.
+        Also, a (sequential/parallel) adapter allows its parameters to be fully updated, and might help generalization.
+    \end{enumerate}
+
+    \item \href{https://arxiv.org/abs/2205.05638}{\textbf{(IA)\(^\mathbf{3}\)}}
+    
+    You are fine-tuning the same 40-block, 250 M-parameter model from the BitFit exercise using (IA)\(^3\).
+    This method introduces three learnable scaling vectors per transformer block:
+    \begin{itemize}
+        \item \(\mathbf{l_v}\) and \(\mathbf{l_k}\) to scale the value and key activations, each a learnable vector of length \(d_\text{model}\) = 768.
+        \item \(\mathbf{l_{ffn}}\) to scale the output of the first MLP layer, a learnable vector of length \(d_\text{ff}\) = 3072.
+    \end{itemize}
+
+    \begin{enumerate}[label=(\roman*)]
+        \item Calculate the total number of trainable parameters introduced by (IA)\(^3\) for the entire 40-block model.
+        
+        \textbf{Answer:} A single block of (IA)\(^3\) contains \(\mathbf{l_v}\), \(\mathbf{l_k}\), \(\mathbf{l_{ffn}}\) as learnable vectors of length 768, 768 and 3072 (Total of 4608 parameters).
+        Hence, with 40-block model, \(4608 \times 40 = 184320\) parameters.
+
+        \item Based on its mechanism, why is (IA)\(^3\) considered to have more \textbf{limited expressibility} than a standard adapter module?
+        
+        \textbf{Answer:} (IA)\(^3\) updates only the scaling of attention and MLP.
+        It does not produce linear projection or nonlinear transformation, like standard adapters.         
+    \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercise 3: Multi-Modal Fusion Strategies}
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Representation Fusion} You are predicting house prices using two modalities: an image (A) and a text description (B). After passing through individual encoders, you have the feature vectors:
+    \[
+    \mathbf{x}_A = \begin{bmatrix}
+        2 \\ 8 \\ 1 \\ 3
+    \end{bmatrix} \in \mathbb{R}^4
+    \quad \text{and} \quad
+    \mathbf{x}_B = \begin{bmatrix}
+        4 \\ 1 \\ 5
+    \end{bmatrix} \in \mathbb{R}^3
+    \]
+
+    \begin{enumerate}[label=\arabic*.]
+        \item \textbf{Concatenation Fusion:} Compute the joint representation \(\mathbf{z}_\text{concat}\) and state its dimension.
+
+        \textbf{Answer:} \(\mathbf{z_\text{concat}} = \left[\mathbf{x}_A; \mathbf{x}_B\right] = \left[2, 8, 1, 3, 4, 1, 5\right]^T \in \mathbb{R}^7\)
+
+        \item \textbf{Additive Fusion:}
+        \begin{enumerate}[label=(\alph*)]
+            \item Can you directly apply additive fusion (\(\mathbf{z} = \mathbf{x}_A + \mathbf{x}_B\))? Why or why not?
+            
+            \textbf{Answer:} No because the \(\mathbf{x}_A\) and \(\mathbf{x}_B\) do not have the same dimension.
+
+            \item To enable additive fusion, you must project both vectors into a common dimension \(d_z = 2\) using matrices \(\mathbf{W}_A \in \mathbb{R}^{2 \times 4}\) and \(\mathbf{W}_B \in \mathbb{R}^{2 \times 3}\).
+            Write the complete formula for the fused representation \(\mathbf{z_\text{add}}\).
+
+            \textbf{Answer:} \(\mathbf{z_\text{add}} = \mathbf{W}_A \mathbf{x}_A + \mathbf{W}_B \mathbf{x}_B \in \mathbb{R}^2\)
+        \end{enumerate}
+
+        \item \textbf{Bilinear Fusion:}
+        \begin{enumerate}[label=(\alph*)]
+            \item Compute the joint representation matrix \(\mathbf{Z_\text{bilinear}}\) using the outer product (\(\mathbf{Z} = \mathbf{x}_A \mathbf{x}^T_B\)).
+            
+            \textbf{Answer:} 
+            \[
+                \mathbf{Z_\text{bilinear}} 
+                = \mathbf{x}_A \mathbf{x}^T_B 
+                = \begin{bmatrix} 2 \\ 8 \\ 1 \\ 3 \end{bmatrix} \cdot \begin{bmatrix} 4 & 1 & 5 \end{bmatrix} 
+                = \begin{bmatrix}
+                    8 & 2 & 10 \\ 
+                    32 & 8 & 40 \\
+                    4 & 1 & 5 \\ 
+                    12 & 3 & 15
+                \end{bmatrix}
+            \]
+
+            \item What is the shape of \(\mathbf{Z_\text{bilinear}}\)? How do its rows and columns relate to the input modalities?
+            
+            \textbf{Answer:} \(\mathbf{Z_\text{bilinear}} \in \mathbb{R}^{4 \times 3}\). \(\mathbf{Z_\text{bilinear}}\) refers to the score from the product of each element.
+        \end{enumerate}
+
+        \item Why is Bilinear Fusion not directly applicable for combining three or more modalities simultaneously?
+        What more general fusion method overcomes this?
+
+        \textbf{Answer:} Because combing more than three layers create computational burden (\(O(n^k) \; ; k\) is the number of modalities).
+        To solve this problem, using additive fusion can simplify the fusion process by linear projecting all modalities into a common dimension before applying summation.
+
+    \end{enumerate}
+
+\end{enumerate}
+
+\end{document}
